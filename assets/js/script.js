@@ -10,26 +10,30 @@ var timeSlots;
 $(function () {
   timeSlots = $('#time-slots');
   renderHourRows();
-  
-
-  // TODO: Add code to display the current date in the header of the page.
-  $('#currentDay').text(dayjs().format('dddd MMM D, YYYY  hh:mm'));
+  //console.log("storage>>> ", readStoredData(d));
+  $('#currentDay').text(dayjs().format('dddd MMM D, YYYY'));
 });
 
 
 
-function readStoredData(){
-  var data = localStorage.getItem('data');
-  if(data){ data = JSON.parse(data)}
-  else{ data = [];}
-  return data;
+function readStoredData(dIn){
+  var data = localStorage.getItem(dIn);
+  //console.log("data: ", data, "\ttype: ", typeof(data));
+  if(data){ return data;}
+  else{ return null;}
 }
 
-function saveStoredData(data){ localStorage.setItem('data', JSON.stringify(data));}
+function saveStoredData(data){
+  let hourContainer = $(data.target).parent();
+  let id = $(hourContainer).attr('id');
+  let textAreaVal = hourContainer.children('textarea').val();
+
+  console.log("hourConatiner>>>\tid: ", id, "\ttextAreaVal: ", textAreaVal);
+  localStorage.setItem(id, textAreaVal);
+}
 
 function renderHourRows(){
   hourBlocks.forEach(function (thing, index){
-    //console.log("thing: ", thing, "\tindex: ", index, "\t", hourBlocks24[index]);
     let row = $('<div>');
     row.addClass('row time-block');
     if(currentHour > hourBlocks24[index]){ row.toggleClass("past");}
@@ -47,6 +51,9 @@ function renderHourRows(){
     let textarea = $('<textarea>');
     textarea.addClass('col-8 col-md-10 description');
     textarea.attr('rows', 3);
+    //textarea.text();
+    let x = readStoredData(id);
+    console.log("ta: ", x);
 
     let saveBtn = $('<button>');
     saveBtn.addClass('btn saveBtn col-2 col-md-1');
@@ -56,12 +63,10 @@ function renderHourRows(){
       iElement.attr('aria-hidden', 'true');
       saveBtn.append(iElement);
 
-    row.on('click', '.saveBtn', function(e){
-      console.log("e>>> ", e.target.parent);
-    });
     row.append(col);
     row.append(textarea);
     row.append(saveBtn);
+    row.on('click', '.saveBtn', saveStoredData);
     timeSlots.append(row);;
   });
 }
