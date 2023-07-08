@@ -1,14 +1,35 @@
+// Variables declared and/or initialized
+var hourBlocks = [9, 10, 11, 12, 1, 2, 3, 4, 5];
+var hourBlocks24 = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+var currentHour = dayjs().hour();
+var timeSlots;
+  
 // Wrap all code that interacts with the DOM in a call to jQuery to ensure that
 // the code isn't run until the browser has finished rendering all the elements
 // in the html.
 $(function () {
-  var hourBlocks = [9, 10, 11, 12, 1, 2, 3, 4, 5];
-  var hourBlocks24 = [9, 10, 11, 12, 13, 14, 15, 16, 17];
-  var timeSlots = $('#time-slots');
-  var currentHour = dayjs().hour();
+  timeSlots = $('#time-slots');
+  renderHourRows();
   
+
+  // TODO: Add code to display the current date in the header of the page.
+  $('#currentDay').text(dayjs().format('dddd MMM D, YYYY  hh:mm'));
+});
+
+
+
+function readStoredData(){
+  var data = localStorage.getItem('data');
+  if(data){ data = JSON.parse(data)}
+  else{ data = [];}
+  return data;
+}
+
+function saveStoredData(data){ localStorage.setItem('data', JSON.stringify(data));}
+
+function renderHourRows(){
   hourBlocks.forEach(function (thing, index){
-    console.log("thing: ", thing, "\tindex: ", index, "\t", hourBlocks24[index]);
+    //console.log("thing: ", thing, "\tindex: ", index, "\t", hourBlocks24[index]);
     let row = $('<div>');
     row.addClass('row time-block');
     if(currentHour > hourBlocks24[index]){ row.toggleClass("past");}
@@ -35,11 +56,15 @@ $(function () {
       iElement.attr('aria-hidden', 'true');
       saveBtn.append(iElement);
 
+    row.on('click', '.saveBtn', function(e){
+      console.log("e>>> ", e.target.parent);
+    });
     row.append(col);
     row.append(textarea);
     row.append(saveBtn);
     timeSlots.append(row);;
   });
+}
   // TODO: Add a listener for click events on the save button. This code should
   // use the id in the containing time-block as a key to save the user input in
   // local storage. HINT: What does `this` reference in the click listener
@@ -47,16 +72,7 @@ $(function () {
   // time-block containing the button that was clicked? How might the id be
   // useful when saving the description in local storage?
   //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
   // TODO: Add code to get any user input that was saved in localStorage and set
   // the values of the corresponding textarea elements. HINT: How can the id
   // attribute of each time-block be used to do this?
   //
-  // TODO: Add code to display the current date in the header of the page.
-  $('#currentDay').text(dayjs().format('dddd MMM D, YYYY  hh:mm'));
-});
