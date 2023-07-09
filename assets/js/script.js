@@ -10,50 +10,52 @@ var timeSlots;
 $(function () {
   timeSlots = $('#time-slots');
   renderHourRows();
-  //console.log("storage>>> ", readStoredData(d));
   $('#currentDay').text(dayjs().format('dddd MMM D, YYYY'));
 });
 
-
-
+// localStorage helper: "GET"
 function readStoredData(dIn){
   var data = localStorage.getItem(dIn);
-  //console.log("data: ", data, "\ttype: ", typeof(data));
   if(data){ return data;}
   else{ return null;}
 }
 
+// localStorage helper: "SET"
 function saveStoredData(data){
-  let hourContainer = $(data.target).parent();
-  let id = $(hourContainer).attr('id');
-  let textAreaVal = hourContainer.children('textarea').val();
+  if(data){
+    let hourContainer = $(data.target).closest('[id]');
+    let id = $(hourContainer).attr('id');
+    let textAreaVal = hourContainer.children('textarea').val();
 
-  console.log("hourConatiner>>>\tid: ", id, "\ttextAreaVal: ", textAreaVal);
-  localStorage.setItem(id, textAreaVal);
+    localStorage.setItem(id, textAreaVal);
+  } //else{ console.log("else'd");}
 }
 
+// Primary logic driver
 function renderHourRows(){
-  hourBlocks.forEach(function (thing, index){
+  // Loop based on hoursBlock:  each time slot built based on numbers in this array
+  hourBlocks.forEach(function (num, index){
     let row = $('<div>');
     row.addClass('row time-block');
+    // Past/present/future conditionally classed here
     if(currentHour > hourBlocks24[index]){ row.toggleClass("past");}
     else if(currentHour < hourBlocks24[index]){ row.toggleClass("future");}
     else{ row.toggleClass("present");}
     
-    let id = 'hour-' + thing;
+    let id = 'hour-' + num;
     row.attr('id', id);
 
     let col = $('<div>');
     col.addClass('col-2 col-md-1 hour text-center py-3');
-    let ampm = index > 2 ? thing + 'PM' : thing + 'AM';
+    let ampm = index > 2 ? num + 'PM' : num + 'AM';
     col.text(ampm);
 
+    // Text area text always pulls from localStorage
     let textarea = $('<textarea>');
     textarea.addClass('col-8 col-md-10 description');
     textarea.attr('rows', 3);
-    //textarea.text();
     let x = readStoredData(id);
-    console.log("ta: ", x);
+    textarea.text(x);
 
     let saveBtn = $('<button>');
     saveBtn.addClass('btn saveBtn col-2 col-md-1');
@@ -66,18 +68,8 @@ function renderHourRows(){
     row.append(col);
     row.append(textarea);
     row.append(saveBtn);
+    timeSlots.append(row);
+    // Text area of planner saved on this click listener
     row.on('click', '.saveBtn', saveStoredData);
-    timeSlots.append(row);;
   });
 }
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
